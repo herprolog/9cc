@@ -42,9 +42,13 @@ struct Node {
   int val;       // Used if kind == ND_NUM
 };
 
+Node *expr();
+
 extern char *user_input;
 
 extern Token *token;
+
+void gen(Node *node);
 
 void error_at(char *loc, char *fmt, ...);
 
