@@ -31,6 +31,14 @@ bool consume(char *op){
   return true;
 }
 
+Token *consume_ident(){
+  if(token->kind!=TK_IDENT)
+    return NULL;
+  Token *tok=token;
+  token=token->next;
+  return tok;
+}
+
 void expect(char *op){
   if(token->kind!=TK_RESERVED||strlen(op)!=token->len||memcmp(token->str,op,token->len))error_at(token->str, "expected '%s'",op);
   token=token->next;
@@ -47,11 +55,10 @@ bool at_eof(){
   return token->kind==TK_EOF;
 }
 
-Token *new_token(TokenKind kind,Token *cur,char *str,int len){
+Token *new_token(TokenKind kind,Token *cur,char *str){
   Token *tok=calloc(1,sizeof(Token));
   tok->kind=kind;
   tok->str=str;
-  tok->len=len;
   cur->next=tok;
   return tok;
 }
@@ -72,24 +79,29 @@ Token *tokenize(){
     }
     if (startswith(p, "==") || startswith(p, "!=") ||
         startswith(p, "<=") || startswith(p, ">=")) {
-      cur = new_token(TK_RESERVED, cur, p, 2);
+      cur = new_token(TK_RESERVED, cur, p);
       p += 2;
       continue;
     }
     if(strchr("+-*/()<>",*p)){
-      cur=new_token(TK_RESERVED,cur,p++,1);
+      cur=new_token(TK_RESERVED,cur,p++);
       continue;
     }
     if(isdigit(*p)){
-      cur=new_token(TK_NUM,cur,p,0);
+      cur=new_token(TK_NUM,cur,p);
       char *q=p;
       cur->val=strtol(p,&p,10);
       cur->len=p-q;
       continue;
     }
+    if('a'<=*p&&*p<='z'){
+      cur=new_token(TK_IDENT,cur,p++);
+      cur->len=1;
+      continue;
+    }
     error_at(p, "invalid token");
   }
-  new_token(TK_EOF,cur,p,0);
+  new_token(TK_EOF,cur,p);
   return head.next;
 }
 
@@ -97,13 +109,20 @@ int main(int argc,char **argv){
   if(argc!=2)
     error("%s: Invalid number of arguments", argv[0]);
   user_input = argv[1];
-  token = tokenize();
-  Node *node = expr();
+  tokenize();
+  program();
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
   printf("main:\n");
-  gen(node);
-  printf("  pop rax\n");
+  printf("  push rbp\n");
+  printf("  mov rbp,rsp\n");
+  printf("  sub rsp,208\n");
+  for(int i=0;code[i];i++){
+    gen(code[i]);
+    printf("  pop rax\n");
+  }
+  printf("  mov rsp,rbp\n");
+  printf("  pop rbp\n");
   printf("  ret\n");
   return 0;
 }

@@ -1,24 +1,36 @@
 #include "9cc.h"
 
-Node *new_node(NodeKind kind) {
+Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
   Node *node = calloc(1, sizeof(Node));
   node->kind = kind;
+  node->lhs = lhs;
+  node->rhs = rhs;
+  return node;
+}
+
+Node *new_node_num(int val){
+  Node *node=calloc(1,sizeof(Node));
+  node->kind=ND_NUM;
+  node->val=val;
   return node;
 }
 
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs) {
-  Node *node = new_node(kind);
+  Node *node = new_node_num(kind);
   node->lhs = lhs;
   node->rhs = rhs;
   return node;
 }
 
 Node *new_num(int val) {
-  Node *node = new_node(ND_NUM);
+  Node *node = new_node_num(ND_NUM);
   node->val = val;
   return node;
 }
 
+void program();
+Node *stmt();
+Node *assign();
 Node *expr();
 Node *equality();
 Node *relational();
@@ -27,9 +39,31 @@ Node *mul();
 Node *unary();
 Node *primary();
 
+Node *code[100];
+
+Node *assign(){
+  Node *node=equality();
+  if(consume("="))
+    node=new_node(ND_ASSIGN,node,assign());
+  return node;
+}
+
 // expr = equality
 extern Node *expr() {
-  return equality();
+  return assign();
+}
+
+Node *stmt(){
+  Node *node=expr();
+  expect(";");
+  return node;
+}
+
+void program(){
+  int i=0;
+  while(!at_eof())
+    code[i++]=stmt();
+  code[i]=NULL;
 }
 
 Node *equality() {
@@ -102,11 +136,18 @@ Node *unary() {
   return primary();
 }
 
-// primary = "(" expr ")" | num
+// primary = "(" expr ")" | num | ident
 Node *primary() {
   if (consume("(")) {
     Node *node = expr();
     expect(")");
+    return node;
+  }
+  Token *tok=consume_ident();
+  if(tok){
+    Node *node=calloc(1,sizeof(Node));
+    node->kind=ND_LVAR;
+    node->offset=(tok->str[0]-'a'+1)*8;
     return node;
   }
 
