@@ -80,10 +80,11 @@ Token *tokenize(){
     if (startswith(p, "==") || startswith(p, "!=") ||
         startswith(p, "<=") || startswith(p, ">=")) {
       cur = new_token(TK_RESERVED, cur, p);
+      cur->len=2;
       p += 2;
       continue;
     }
-    if(strchr("+-*/()<>",*p)){
+    if(strchr("+-*/()<>;=",*p)){
       cur=new_token(TK_RESERVED,cur,p++);
       continue;
     }
@@ -109,7 +110,7 @@ int main(int argc,char **argv){
   if(argc!=2)
     error("%s: Invalid number of arguments", argv[0]);
   user_input = argv[1];
-  tokenize();
+  token = tokenize();
   program();
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
