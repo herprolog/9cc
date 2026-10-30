@@ -16,10 +16,7 @@ Node *new_node_num(int val){
 }
 
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs) {
-  Node *node = new_node_num(kind);
-  node->lhs = lhs;
-  node->rhs = rhs;
-  return node;
+  return new_node(kind, lhs, rhs);
 }
 
 Node *new_num(int val) {
