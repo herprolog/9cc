@@ -103,16 +103,23 @@ Token *tokenize(){
       cur->len=p-q;
       continue;
     }
-    if('a'<=*p&&*p<='z'){
-      cur=new_token(TK_IDENT,cur,p++);
-      cur->len=1;
-      continue;
-    }
     if (strncmp(p, "return", 6) == 0 && !is_alnum(p[6])) {
       tokens[i].ty = TK_RETURN;
       tokens[i].str = p;
       i++;
       p += 6;
+      continue;
+    }
+    if('a'<=*p&&*p<='z'){
+      char *start=p;
+      do{
+	p++;
+      }while(('a'<=*p&&*p<='z')||
+	     ('A'<=*p&&*p<='Z')||
+	     ('0'<=*p&&*p<='9')||
+	     *p=='_');
+      cur=new_token(TK_IDENT,cur,start);
+      cur->len=p-start;
       continue;
     }
     error_at(p, "invalid token");
