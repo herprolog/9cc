@@ -31,6 +31,13 @@ bool consume(char *op){
   return true;
 }
 
+bool consume_token(TokenKind kind){
+  if(token->kind!=kind)
+    return false;
+  token=token->next;
+  return true;
+}
+
 Token *consume_ident(){
   if(token->kind!=TK_IDENT)
     return NULL;
@@ -104,10 +111,9 @@ Token *tokenize(){
       continue;
     }
     if (strncmp(p, "return", 6) == 0 && !is_alnum(p[6])) {
-      tokens[i].ty = TK_RETURN;
-      tokens[i].str = p;
-      i++;
-      p += 6;
+      cur=new_token(TK_RETURN,cur,p);
+      cur->len=6;
+      p+=6;
       continue;
     }
     if('a'<=*p&&*p<='z'){

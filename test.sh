@@ -45,4 +45,11 @@ assert 0 '1>2;'
 assert 1 '1>=0;'
 assert 1 '1>=1;'
 assert 0 '1>=2;'
+
+assert 1 'return 1;'
+assert 0 'return 0;return1;'
+assert 1 'a=1;return a;'
+assert 0 'tmp=0;return tmp;'
+assert 5 'A=2+3;return A;'
+
 echo OK

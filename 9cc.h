@@ -62,6 +62,8 @@ void error_at(char *loc, char *fmt, ...);
 
 bool consume(char *op);
 
+bool consume_token(TokenKind kind);
+
 Token *consume_ident();
 
 void expect(char *op);
