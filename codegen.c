@@ -9,7 +9,31 @@ void gen_lval(Node *node){
   printf("  push rax\n");
 }
 
-void gen(Node *node) {	/*  */
+void gen(Node *node) {
+  if(node->kind==ND_IF){
+    static int seq=0;
+    int label=seq++;
+    gen(node->lhs);
+    printf("  pop rax\n");
+    printf("  cmp rax, 0\n");
+    if(node->third){
+      printf("  je .Lelse%d\n",label);
+      gen(node->rhs);
+      printf("  pop rax\n");
+      printf("  jmp .Lend%d\n",label);
+      printf(".Lelse%d\n",label);
+      gen(node->third);
+      printf("  pop rax\n");
+      printf(".Lend%d:\n",label);
+    }else{
+      printf("  je .Lend%d\n",label);
+      gen(node->rhs);
+      printf("  pop rax\n");
+      printf(".Lend%d:\n",label);
+    }
+    printf("  push 0\n");
+    return;
+  }
   if (node->kind == ND_RETURN) {
     gen(node->lhs);
     printf("  pop rax\n");

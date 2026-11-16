@@ -69,6 +69,18 @@ extern Node *expr() {
 Node *stmt() {
   Node *node;
 
+  if(consume_token(TK_IF)){
+    node=calloc(1,sizeof(Node));
+    node->kind=ND_IF;
+    expect("(");
+    node->lhs=expr();
+    expect(")");
+    node->rhs=stmt();
+    if(consume_token(TK_ELSE))
+      node->third=stmt();
+    return node;
+  }
+
   if (consume_token(TK_RETURN)) {
     node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;
