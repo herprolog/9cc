@@ -21,7 +21,7 @@ void gen(Node *node) {
       gen(node->rhs);
       printf("  pop rax\n");
       printf("  jmp .Lend%d\n",label);
-      printf(".Lelse%d\n",label);
+      printf(".Lelse%d:\n",label);
       gen(node->third);
       printf("  pop rax\n");
       printf(".Lend%d:\n",label);

@@ -54,9 +54,10 @@ assert 5 'A=2+3;return A;'
 
 assert 1 'if(1)return 1;return 0;'
 assert 2 'if(0)return 1;return 2;'
-assert 2 'if(0)return 0;else return 1;return 2;'
+assert 1 'if(0)return 0;else return 1;return 2;'
 assert 2 'a=0;if(1)if(1)a=2;return a;'
 assert 0 'a=0;if(1)if(0)a=2;return a;'
 assert 1 'a=0;if(0)a=1;else if(1)a=1;else a=2;return a;'
+assert 0 'if(2<3*4)return 0;return 1;'
 
-Echo OK
+echo OK
