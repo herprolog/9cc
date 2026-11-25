@@ -80,7 +80,34 @@ Node *stmt() {
       node->third=stmt();
     return node;
   }
-
+  if(consume_token(TK_WHILE)){
+    node=calloc(1,sizeof(Node));
+    node->kind=ND_WHILE;
+    expect("(");
+    node->lhs=expr();
+    expect(")");
+    node->body=stmt();
+    return node;
+  }
+  if(consume_token(TK_FOR)){
+    node=calloc(1,sizeof(Node));
+    node->kind=ND_FOR;
+    expect("(");
+    if(!consume(";")){
+      node->lhs=expr();
+      expect(";");
+    }
+    if(!consume(";")){
+      node->rhs=expr();
+      expect(";");
+    }
+    if(!consume(")")){
+      node->third=expr();
+      expect(")");
+    }
+    node->body=stmt();
+    return node;
+  }
   if (consume_token(TK_RETURN)) {
     node = calloc(1, sizeof(Node));
     node->kind = ND_RETURN;

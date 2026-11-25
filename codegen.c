@@ -1,5 +1,7 @@
 #include "9cc.h"
 
+static int labelseq=0;
+
 void gen_lval(Node *node){
   if(node->kind!=ND_LVAR)
     error("left assignment is not a variable");
@@ -11,8 +13,7 @@ void gen_lval(Node *node){
 
 void gen(Node *node) {
   if(node->kind==ND_IF){
-    static int seq=0;
-    int label=seq++;
+    int label=labelseq++;
     gen(node->lhs);
     printf("  pop rax\n");
     printf("  cmp rax, 0\n");
@@ -33,6 +34,42 @@ void gen(Node *node) {
     }
     printf("  push 0\n");
     return;
+  }
+  if(node->kind==ND_WHILE){
+    int label=labelseq++;
+    printf(".Lbegin%d:\n",label);
+    gen(node->lhs);
+    printf("  pop rax\n");
+    printf("  cmp rax,0\n");
+    printf("  je .Lend%d\n",label);
+    gen(node->body);
+    printf("  pop rax\n");
+    printf("  jmp .Lbegin%d\n",label);
+    printf(".Lend%d:\n",label);
+    printf("  push 0\n");
+  }
+  if(node->kind==ND_FOR){
+    int label=labelseq++;
+    if(node->lhs){
+      gen(node->lhs);
+      printf("  pop rax\n");
+    }
+    printf(".Lbegin%d:\n",label);
+    if(node->rhs){
+      gen(node->rhs);
+      printf("  pop rax\n");
+      printf("  cmp rax,0");
+      printf("  je .Lend%d\n",label);
+    }
+    gen(node->body);
+    printf("  pop rax\n");
+    if(node->third){
+      gen(node->third);
+      printf("  pop rax\n");
+    }
+    printf(" jmp .Lbegin%d\n",label);
+    printf("Lend%d:\n",label);
+    printf("  push 0\n");
   }
   if (node->kind == ND_RETURN) {
     gen(node->lhs);

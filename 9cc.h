@@ -13,6 +13,8 @@ typedef enum{
   TK_RETURN, // return
   TK_IF, // if
   TK_ELSE, // if-else
+  TK_WHILE, //while
+  TK_FOR, //for
 }TokenKind;
 
 typedef struct Token Token;
@@ -39,6 +41,8 @@ typedef enum {
   ND_ASSIGN, // assignment
   ND_RETURN, // return
   ND_IF, // if
+  ND_WHILE, //while
+  ND_FOR, //for
 } NodeKind;
 
 typedef struct Node Node;
@@ -48,6 +52,7 @@ struct Node {
   Node *lhs;     // Left-hand side
   Node *rhs;     // Right-hand side
   Node *third;   // else
+  Node *body;    // for/while content
   int val;       // Used if kind == ND_NUM
   int offset;    // Used if kind == ND_LVAR
 };
