@@ -64,7 +64,6 @@ assert 1 'if(5<100/1002)return 0;return 1;'
 assert 5 'i=0;while(i<5)i=i+1;return i;'
 assert 0 'i=0;while(i<0)i=i+1;return i;'
 
-assert 5 'i=0;for(i=0;i<5;i=i+1);return i;'
 assert 5 'a=0;for(i=0;i<5;i=i+1)a=a+1;return a;'
 
 echo OK

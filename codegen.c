@@ -47,6 +47,7 @@ void gen(Node *node) {
     printf("  jmp .Lbegin%d\n",label);
     printf(".Lend%d:\n",label);
     printf("  push 0\n");
+    return;
   }
   if(node->kind==ND_FOR){
     int label=labelseq++;
@@ -58,7 +59,7 @@ void gen(Node *node) {
     if(node->rhs){
       gen(node->rhs);
       printf("  pop rax\n");
-      printf("  cmp rax,0");
+      printf("  cmp rax,0\n");
       printf("  je .Lend%d\n",label);
     }
     gen(node->body);
@@ -70,6 +71,7 @@ void gen(Node *node) {
     printf(" jmp .Lbegin%d\n",label);
     printf("Lend%d:\n",label);
     printf("  push 0\n");
+    return;
   }
   if (node->kind == ND_RETURN) {
     gen(node->lhs);
