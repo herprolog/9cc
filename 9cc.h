@@ -41,8 +41,9 @@ typedef enum {
   ND_ASSIGN, // assignment
   ND_RETURN, // return
   ND_IF, // if
-  ND_WHILE, //while
-  ND_FOR, //for
+  ND_WHILE, // while
+  ND_FOR, // for
+  ND_BLOCK, // block
 } NodeKind;
 
 typedef struct Node Node;
@@ -53,8 +54,11 @@ struct Node {
   Node *rhs;     // Right-hand side
   Node *third;   // else
   Node *body;    // for/while content
+  Node **stmts;  // block statement
   int val;       // Used if kind == ND_NUM
   int offset;    // Used if kind == ND_LVAR
+  int stmts_len; // stmts length
+  int stmts_cap; // stmts capacity
 };
 
 extern Node *code[100];

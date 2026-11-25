@@ -81,6 +81,16 @@ int is_alnum(char c) {
          (c == '_');
 }
 
+int judge_ident(char *p,char *ident_word,int len){
+  return (!strncmp(p,ident_word,len)&&!is_alnum(p[len]));
+}
+
+void create_cur(TokenKind ident,Token *cur,char *p,int len){
+  cur=new_token(ident,cur,p);
+  cur->len=len;
+  p+=len;
+}
+
 Token *tokenize(){
   Token head;
   head.next=NULL;
@@ -98,9 +108,8 @@ Token *tokenize(){
       p += 2;
       continue;
     }
-    if(strchr("+-*/()<>;=",*p)){
-      cur=new_token(TK_RESERVED,cur,p++);
-      cur->len=1;
+    if(strchr("+-*/()<>;={}",*p)){
+      create_cur(TK_RESERVED,cur,p,1);
       continue;
     }
     if(isdigit(*p)){
@@ -110,31 +119,31 @@ Token *tokenize(){
       cur->len=p-q;
       continue;
     }
-    if(!strncmp(p,"return",6)&& !is_alnum(p[6])) {
+    if(judge_ident(p,"return",6)) {
       cur=new_token(TK_RETURN,cur,p);
       cur->len=6;
       p+=6;
       continue;
     }
-    if(!strncmp(p,"if",2)&&!is_alnum(p[2])) {
+    if(judge_ident(p,"if",2)) {
       cur=new_token(TK_IF,cur,p);
       cur->len=2;
       p+=2;
       continue;
     }
-    if(!strncmp(p,"else",4)&&!is_alnum(p[4])){
+    if(judge_ident(p,"else",4)){
       cur=new_token(TK_ELSE,cur,p);
       cur->len=4;
       p+=4;
       continue;
     }
-    if(!strncmp(p,"while",5)&&!is_alnum(p[5])){
+    if(judge_ident(p,"while",5)){
       cur=new_token(TK_WHILE,cur,p);
       cur->len=5;
       p+=5;
       continue;
     }
-    if(!strncmp(p,"for",3)&&!is_alnum(p[3])){
+    if(judge_ident(p,"for",3)){
       cur=new_token(TK_FOR,cur,p);
       cur->len=3;
       p+=3;
