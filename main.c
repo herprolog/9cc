@@ -85,10 +85,10 @@ int judge_ident(char *p,char *ident_word,int len){
   return (!strncmp(p,ident_word,len)&&!is_alnum(p[len]));
 }
 
-void create_cur(TokenKind ident,Token *cur,char *p,int len){
-  cur=new_token(ident,cur,p);
-  cur->len=len;
-  p+=len;
+void create_cur(TokenKind ident,Token **cur,char **p,int len){
+  *cur=new_token(ident,*cur,*p);
+  (*cur)->len=len;
+  *p+=len;
 }
 
 Token *tokenize(){
@@ -101,15 +101,13 @@ Token *tokenize(){
       p++;
       continue;
     }
-    if (startswith(p, "==") || startswith(p, "!=") ||
-        startswith(p, "<=") || startswith(p, ">=")) {
-      cur = new_token(TK_RESERVED, cur, p);
-      cur->len=2;
-      p += 2;
+    if(startswith(p,"==")||startswith(p,"!=")||
+       startswith(p,"<=")||startswith(p,">=")){
+      create_cur(TK_RESERVED,&cur,&p,2);
       continue;
     }
     if(strchr("+-*/()<>;={}",*p)){
-      create_cur(TK_RESERVED,cur,p,1);
+      create_cur(TK_RESERVED,&cur,&p,1);
       continue;
     }
     if(isdigit(*p)){
@@ -120,43 +118,30 @@ Token *tokenize(){
       continue;
     }
     if(judge_ident(p,"return",6)) {
-      cur=new_token(TK_RETURN,cur,p);
-      cur->len=6;
-      p+=6;
+      create_cur(TK_RETURN,&cur,&p,6);
       continue;
     }
     if(judge_ident(p,"if",2)) {
-      cur=new_token(TK_IF,cur,p);
-      cur->len=2;
-      p+=2;
+      create_cur(TK_IF,&cur,&p,2);
       continue;
     }
     if(judge_ident(p,"else",4)){
-      cur=new_token(TK_ELSE,cur,p);
-      cur->len=4;
-      p+=4;
+      create_cur(TK_ELSE,&cur,&p,4);
       continue;
     }
     if(judge_ident(p,"while",5)){
-      cur=new_token(TK_WHILE,cur,p);
-      cur->len=5;
-      p+=5;
+      create_cur(TK_WHILE,&cur,&p,5);
       continue;
     }
     if(judge_ident(p,"for",3)){
-      cur=new_token(TK_FOR,cur,p);
-      cur->len=3;
-      p+=3;
+      create_cur(TK_FOR,&cur,&p,3);
       continue;
     }
-    if(('a'<=*p&&*p<='z')||('A'<=*p&&*p<='Z')){
+    if(isalpha(*p)){
       char *start=p;
       do{
 	p++;
-      }while(('a'<=*p&&*p<='z')||
-	     ('A'<=*p&&*p<='Z')||
-	     ('0'<=*p&&*p<='9')||
-	     *p=='_');
+      }while(is_alnum(*p));
       cur=new_token(TK_IDENT,cur,start);
       cur->len=p-start;
       continue;
