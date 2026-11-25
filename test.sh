@@ -66,4 +66,12 @@ assert 0 'i=0;while(i<0)i=i+1;return i;'
 
 assert 5 'a=0;for(i=0;i<5;i=i+1)a=a+1;return a;'
 
+assert 0 '{}return 0;'
+assert 2 '1;return 2;'
+assert 0 'a=5;{a=a-6;a=a+1;}return a;'
+assert 1 'a=0;if(2<5){a=1;}return a;'
+assert 2 'a=0;for(i=0;i<2;i=i+1){a=a+1;}return a;'
+assert 0 'a=10;while(a){a=a-1;}return a;'
+assert 0 'a=-10;for(i=0;i<20;i=i+1){a=a+1;if(a>=0){return a;}}return a;'
+
 echo OK

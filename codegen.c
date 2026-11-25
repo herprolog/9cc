@@ -12,6 +12,14 @@ void gen_lval(Node *node){
 }
 
 void gen(Node *node) {
+  if(node->kind==ND_BLOCK){
+    for(int i=0;i<node->stmts_len;i++){
+      gen(node->stmts[i]);
+      printf("  pop rax\n");
+    }
+    printf("  push 0\n");
+    return;
+  }
   if(node->kind==ND_IF){
     int label=labelseq++;
     gen(node->lhs);
