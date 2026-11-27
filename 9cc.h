@@ -44,6 +44,7 @@ typedef enum {
   ND_WHILE, // while
   ND_FOR, // for
   ND_BLOCK, // block
+  ND_FUNCALL, // call function
 } NodeKind;
 
 typedef struct Node Node;
@@ -59,6 +60,10 @@ struct Node {
   int offset;    // Used if kind == ND_LVAR
   int stmts_len; // stmts length
   int stmts_cap; // stmts capacity
+  char *funcname;
+  int funcname_len;
+  Node **args;
+  int argc;
 };
 
 typedef struct Function Function;

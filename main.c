@@ -106,7 +106,7 @@ Token *tokenize(){
       create_cur(TK_RESERVED,&cur,&p,2);
       continue;
     }
-    if(strchr("+-*/()<>;={}",*p)){
+    if(strchr("+-*/()<>;={},",*p)){
       create_cur(TK_RESERVED,&cur,&p,1);
       continue;
     }

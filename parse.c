@@ -44,6 +44,7 @@ LVar *new_lvar(Token *tok){
     lvar->offset=8;
   locals=lvar;
   return lvar;
+}
 
 void program();
 Node *stmt();
@@ -56,7 +57,7 @@ Node *mul();
 Node *unary();
 Node *primary();
 
-Function functions;;
+Function *functions;
 
 Node *assign(){
   Node *node=equality();
@@ -139,7 +140,7 @@ Node *stmt() {
 }
 
 void program(){
-  Function head=();
+  Function head={0};
   Function *cur=&head;
   while(!at_eof()){
     Function *fn=calloc(1,sizeof(Function));
@@ -147,14 +148,14 @@ void program(){
     if(!name)
       error_at(token->str,"expexted a function name");
     fn->name=name->str;
-    fn->le=name->len;
+    fn->len=name->len;
     locals=NULL;
     expect("(");
     if(!consume(")")){
       do{
         Token *param=consume_ident();
         if(!param)
-          erro_at(token->str,"expected a parameter name");
+          error_at(token->str,"expected a parameter name");
         LVar *var=new_lvar(param);
         fn->param_cnt++;
         fn->param_offsets=realloc(
@@ -167,7 +168,7 @@ void program(){
     }
     fn->body=stmt();
     if(locals)
-      fn->stack_size=locals_offsets;
+      fn->stack_size=locals->offset;
     cur->next=fn;
     cur=fn;
   }
@@ -255,29 +256,27 @@ Node *primary() {
     return new_num(expect_number());
   
   Token *tok = consume_ident();
-  if (tok) {
+  if(!tok)
+    error_at(token->str,"expexted an expression");
+  if(consume("(")){
     Node *node = calloc(1, sizeof(Node));
-    node->kind = ND_LVAR;
-
-    LVar *lvar = find_lvar(tok);
-    if (lvar) {
-      node->offset = lvar->offset;
-    } else {
-      lvar = calloc(1, sizeof(LVar));
-      lvar->next = locals;
-      lvar->name = tok->str;
-      lvar->len = tok->len;
-
-      if(locals)
-	lvar->offset = locals->offset + 8;
-      else
-	lvar->offset = 8;
-      
-      node->offset = lvar->offset;
-      locals = lvar;
+    node->kind=ND_FUNCALL;
+    node->funcname=tok->str;
+    node->funcname_len=tok->len;
+    if(!consume(")")){
+      do{
+	node->args=realloc(node->args,sizeof(Node*)*(node->argc+1));
+	node->args[node->argc++]=expr();
+      }while(consume(","));
+      expect(")");
     }
     return node;
   }
-
-  error_at(token->str,"expected an expression");
+  Node *node=calloc(1,sizeof(Node));
+  node->kind=ND_LVAR;
+  LVar *lvar=find_lvar(tok);
+  if(!lvar)
+    lvar=new_lvar(tok);
+  node->offset=lvar->offset;
+  return node;
 }

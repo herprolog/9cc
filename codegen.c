@@ -13,13 +13,13 @@ void gen_lval(Node *node){
 
 void gen_function(Function *fn){
   static char *argreg[]={
-    "edi","rsi","rdx","rcx","r8","r9"
+    "rdi","rsi","rdx","rcx","r8","r9"
   };
   if(fn->param_cnt>6)
     error("too many parameters");
   printf("%.*s:\n",fn->len,fn->name);
   printf("  push rbp\n");
-  printf("  mov rbp rsp\n");
+  printf("  mov rbp,rsp\n");
   printf("  sub rsp,%d\n",fn->stack_size);
   for(int i=0;i<fn->param_cnt;i++)
     printf("  mov [rbp-%d],%s\n",fn->param_offsets[i],argreg[i]);
@@ -31,6 +31,22 @@ void gen_function(Function *fn){
 }
   
 void gen(Node *node) {
+  if(node->kind==ND_FUNCALL){
+    static char *argreg[]={
+      "rdi","rsi","rdx","rcx","r8","r9"
+    };
+    if(node->argc>6)error("too many arguments");
+    for(int i=0;i<node->argc;i++)gen(node->args[i]);
+    for(int i=node->argc-1;i>=0;i--)printf("  pop %s\n",argreg[i]);
+    printf("  mov rax,rsp\n");
+    printf("  and rsp,-16\n");
+    printf("  sub rsp,16\n");
+    printf("  mov [rsp],rax\n");
+    printf("  call %.*s\n",node->funcname_len,node->funcname);
+    printf("  mov rsp,[rsp]\n");
+    printf("  push rax\n");
+    return;
+  }
   if(node->kind==ND_BLOCK){
     for(int i=0;i<node->stmts_len;i++){
       gen(node->stmts[i]);
