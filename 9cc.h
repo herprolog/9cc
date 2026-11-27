@@ -45,6 +45,8 @@ typedef enum {
   ND_FOR, // for
   ND_BLOCK, // block
   ND_FUNCALL, // call function
+  ND_ADDR, // address
+  ND_DERFF, // conten of address
 } NodeKind;
 
 typedef struct Node Node;

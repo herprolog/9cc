@@ -31,6 +31,17 @@ void gen_function(Function *fn){
 }
   
 void gen(Node *node) {
+  if(node->kind==ND_ADDR){
+    gen_lval(node->lhs);
+    return;
+  }
+  if(node->kind==ND_DERFF){
+    gen(node->lhs);
+    printf("  pop rax\n");
+    printf("  mov rax,[rax]\n");
+    printf("  push rax\n");
+    return;
+  }
   if(node->kind==ND_FUNCALL){
     static char *argreg[]={
       "rdi","rsi","rdx","rcx","r8","r9"
