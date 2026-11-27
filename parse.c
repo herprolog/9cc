@@ -33,6 +33,18 @@ LVar *find_lvar(Token *tok){
   return NULL;
 }
 
+LVar *new_lvar(Token *tok){
+  LVar *lvar=calloc(1,sizeof(LVar));
+  lvar->next=locals;
+  lvar->name=tok->str;
+  lvar->len=tok->len;
+  if(locals)
+    lvar->offset=locals->offset+8;
+  else
+    lvar->offset=8;
+  locals=lvar;
+  return lvar;
+
 void program();
 Node *stmt();
 Node *assign();
@@ -44,7 +56,7 @@ Node *mul();
 Node *unary();
 Node *primary();
 
-Node *code[100];
+Function functions;;
 
 Node *assign(){
   Node *node=equality();
@@ -127,10 +139,39 @@ Node *stmt() {
 }
 
 void program(){
-  int i=0;
-  while(!at_eof())
-    code[i++]=stmt();
-  code[i]=NULL;
+  Function head=();
+  Function *cur=&head;
+  while(!at_eof()){
+    Function *fn=calloc(1,sizeof(Function));
+    Token *name=consume_ident();
+    if(!name)
+      error_at(token->str,"expexted a function name");
+    fn->name=name->str;
+    fn->le=name->len;
+    locals=NULL;
+    expect("(");
+    if(!consume(")")){
+      do{
+        Token *param=consume_ident();
+        if(!param)
+          erro_at(token->str,"expected a parameter name");
+        LVar *var=new_lvar(param);
+        fn->param_cnt++;
+        fn->param_offsets=realloc(
+      			    fn->param_offsets,
+      			    sizeof(int)*fn->param_cnt
+      			   );
+        fn->param_offsets[fn->param_cnt-1]=var->offset;
+      }while(consume(","));
+      expect(")");
+    }
+    fn->body=stmt();
+    if(locals)
+      fn->stack_size=locals_offsets;
+    cur->next=fn;
+    cur=fn;
+  }
+  functions=head.next;
 }
 
 Node *equality() {

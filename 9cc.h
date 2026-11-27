@@ -61,7 +61,19 @@ struct Node {
   int stmts_cap; // stmts capacity
 };
 
-extern Node *code[100];
+typedef struct Function Function;
+
+struct Function{
+  Function *next;
+  char *name;
+  int len;
+  Node *body;
+  int param_cnt;
+  int *param_offsets;
+  int stack_size;
+};
+
+extern Function *functions;
 
 Node *expr();
 
@@ -94,3 +106,5 @@ Token *tokenize();
 void error(char *fmt, ...);
 
 void program();
+
+void gen_function(Function *fn);

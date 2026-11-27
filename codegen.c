@@ -11,6 +11,25 @@ void gen_lval(Node *node){
   printf("  push rax\n");
 }
 
+void gen_function(Function *fn){
+  static char *argreg[]={
+    "edi","rsi","rdx","rcx","r8","r9"
+  };
+  if(fn->param_cnt>6)
+    error("too many parameters");
+  printf("%.*s:\n",fn->len,fn->name);
+  printf("  push rbp\n");
+  printf("  mov rbp rsp\n");
+  printf("  sub rsp,%d\n",fn->stack_size);
+  for(int i=0;i<fn->param_cnt;i++)
+    printf("  mov [rbp-%d],%s\n",fn->param_offsets[i],argreg[i]);
+  gen(fn->body);
+  printf("  pop rax\n");
+  printf("  mov rsp, rbp\n");
+  printf("  pop rbp\n");
+  printf("  ret\n");
+}
+  
 void gen(Node *node) {
   if(node->kind==ND_BLOCK){
     for(int i=0;i<node->stmts_len;i++){

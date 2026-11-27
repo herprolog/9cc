@@ -160,17 +160,9 @@ int main(int argc,char **argv){
   program();
   printf(".intel_syntax noprefix\n");
   printf(".globl main\n");
-  printf("main:\n");
-  printf("  push rbp\n");
-  printf("  mov rbp,rsp\n");
-  printf("  sub rsp,208\n");
-  for(int i=0;code[i];i++){
-    gen(code[i]);
-    printf("  pop rax\n");
+  for(Function *fn=functions;fn;fn=fn->next){
+    gen_function(fn);
   }
-  printf("  mov rsp,rbp\n");
-  printf("  pop rbp\n");
-  printf("  ret\n");
   printf(".section .note.GNU-stack,\"\",@progbits\n");
   return 0;
 }
